@@ -1,3 +1,6 @@
+#include <iostream>
+#include <map>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 
@@ -10,6 +13,9 @@ int main(int argc, char const *argv[]) {
     }
 
     rivoss::elf::ElfFile file = rivoss::elf::ElfFile{std::string{argv[1]}};
+    for (const auto &i : file.sectionNames()) {
+        std::cout << i << std::endl;
+    }
 
     return 0;
 }
