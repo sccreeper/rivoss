@@ -1,0 +1,39 @@
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^<[a-z_]+>$'
+    Priority:        1
+    SortPriority:    1
+  - Regex:           '^<.*>$'
+    Priority:        2
+    SortPriority:    2
+  - Regex:           '^".*"$'
+    Priority:        3
+    SortPriority:    3
+
+IncludeIsMainRegex: '(Test)?$'
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+NamespaceIndentation: All
+IndentCaseLabels: false
+
+ColumnLimit: 110
+
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCompound: false
+  PadOperators: true
+
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+
+AlignConsecutiveBitFields: true
+
+IndentPPDirectives: BeforeHash
