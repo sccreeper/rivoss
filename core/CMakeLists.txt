@@ -6,7 +6,7 @@ add_library(core
     utils.hpp
     utils.cpp
     instructions.hpp
-    instruction.cpp
+    instructions.cpp
 )
 target_link_libraries(core PUBLIC elfio::elfio)
 target_include_directories(core PUBLIC ${CMAKE_SOURCE_DIR})

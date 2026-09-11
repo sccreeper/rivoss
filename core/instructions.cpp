@@ -198,10 +198,11 @@ namespace rivoss {
             }
             case 0b0000011u: {
                 // I Type
-                result.rd     = utils::extractBits(instr, 7, 5);
-                result.funct3 = utils::extractBits(instr, 12, 3);
-                result.rs1    = utils::extractBits(instr, 15, 5);
-                result.imm    = static_cast<int32_t>(utils::extractBits(instr, 20, 12) << 20) >> 20;
+                result.rd        = utils::extractBits(instr, 7, 5);
+                result.funct3    = utils::extractBits(instr, 12, 3);
+                result.rs1       = utils::extractBits(instr, 15, 5);
+                result.signedImm = static_cast<int32_t>(utils::extractBits(instr, 20, 12) << 20) >> 20;
+                result.imm       = static_cast<uint32_t>(result.signedImm);
 
                 // The nested casts are used here for sign extension
                 switch (result.funct3) {
@@ -500,7 +501,7 @@ namespace rivoss {
             case REMU:
                 return "REMU";
             default:
-                break;
+                return "";
             }
         }
 
@@ -581,42 +582,48 @@ namespace rivoss {
             case 0b0110011u:
                 // R Type
                 return std::format("{}, {}, {}, {}", getInstructionName(instr.instr),
-                                   static_cast<Register>(instr.rd), static_cast<Register>(instr.rs1),
-                                   static_cast<Register>(instr.rs1));
+                                   getRegisterName(static_cast<Register>(instr.rd)),
+                                   getRegisterName(static_cast<Register>(instr.rs1)),
+                                   getRegisterName(static_cast<Register>(instr.rs2)));
 
             case 0b0010011u:
             case 0b0000011u:
             case 0b1100111u:
             case 0b1110011u:
                 // I Type
-                return std::format("{}, {}, {}, {}", getInstructionName(instr.instr),
-                                   static_cast<Register>(instr.rd), static_cast<Register>(instr.rs1),
-                                   instr.imm);
+                return std::format("{}, {}, {}, {} ({})", getInstructionName(instr.instr),
+                                   getRegisterName(static_cast<Register>(instr.rd)),
+                                   getRegisterName(static_cast<Register>(instr.rs1)), instr.imm,
+                                   instr.signedImm);
 
             case 0b0100011u:
                 // S Type
-                return std::format("{}, {}, {}, {}", getInstructionName(instr.instr),
-                                   static_cast<Register>(instr.rd), static_cast<Register>(instr.rs1),
-                                   instr.imm);
+                return std::format("{}, {}, {}, {}, ({})", getInstructionName(instr.instr),
+                                   getRegisterName(static_cast<Register>(instr.rd)),
+                                   getRegisterName(static_cast<Register>(instr.rs1)), instr.imm,
+                                   instr.signedImm);
 
             case 0b1100011u:
                 // B Type
-                return std::format("{}, {}, {}, {}", getInstructionName(instr.instr),
-                                   static_cast<Register>(instr.rd), static_cast<Register>(instr.rs1),
-                                   instr.imm);
+                return std::format("{}, {}, {}, {}, ({})", getInstructionName(instr.instr),
+                                   getRegisterName(static_cast<Register>(instr.rd)),
+                                   getRegisterName(static_cast<Register>(instr.rs1)), instr.imm,
+                                   instr.signedImm);
 
             case 0b1101111u:
                 // J Type
-                return std::format("{}, {}, {}", getInstructionName(instr.instr),
-                                   static_cast<Register>(instr.rd), instr.imm);
+                return std::format("{}, {}, {} ({})", getInstructionName(instr.instr),
+                                   getRegisterName(static_cast<Register>(instr.rd)), instr.imm,
+                                   instr.signedImm);
             case 0b0110111u:
             case 0b0010111u:
                 // U Type
-                return std::format("{}, {}, {}", getInstructionName(instr.instr),
-                                   static_cast<Register>(instr.rd), instr.imm);
+                return std::format("{}, {}, {} ({})", getInstructionName(instr.instr),
+                                   getRegisterName(static_cast<Register>(instr.rd)), instr.imm,
+                                   instr.signedImm);
 
             default:
-                break;
+                return "?";
             }
         }
 
