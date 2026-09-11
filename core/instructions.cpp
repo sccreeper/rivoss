@@ -1,8 +1,11 @@
 #include "instructions.hpp"
 
 #include <cstdint>
+#include <format>
 
 #include "utils.hpp"
+
+// TODO: move the binary values in switch statements to named constants
 
 namespace rivoss {
     namespace instr {
@@ -398,6 +401,223 @@ namespace rivoss {
             }
 
             return result;
+        }
+
+        constexpr std::string_view getInstructionName(Instruction instr) {
+            switch (instr) {
+            case ADD:
+                return "ADD";
+            case SUB:
+                return "SUB";
+            case XOR:
+                return "XOR";
+            case OR:
+                return "OR";
+            case AND:
+                return "AND";
+            case SLL:
+                return "SLL";
+            case SRL:
+                return "SRL";
+            case SRA:
+                return "SRA";
+            case SLT:
+                return "SLT";
+            case SLTU:
+                return "SLTU";
+            case ADDI:
+                return "ADDI";
+            case XORI:
+                return "XORI";
+            case ORI:
+                return "ORI";
+            case ANDI:
+                return "ANDI";
+            case SLLI:
+                return "SLLI";
+            case SRLI:
+                return "SRLI";
+            case SRAI:
+                return "SRAI";
+            case SLTI:
+                return "SLTI";
+            case SLTIU:
+                return "SLTIU";
+            case LB:
+                return "LB";
+            case LH:
+                return "LH";
+            case LW:
+                return "LW";
+            case LBU:
+                return "LBU";
+            case LHU:
+                return "LHU";
+            case SB:
+                return "SB";
+            case SH:
+                return "SH";
+            case SW:
+                return "SW";
+            case BEQ:
+                return "BEQ";
+            case BNE:
+                return "BNE";
+            case BLT:
+                return "BLT";
+            case BGE:
+                return "BGE";
+            case BLTU:
+                return "BLTU";
+            case BGEU:
+                return "BGEU";
+            case JAL:
+                return "JAL";
+            case JALR:
+                return "JALR";
+            case LUI:
+                return "LUI";
+            case AUIPC:
+                return "AUIPC";
+            case ECALL:
+                return "ECALL";
+            case EBREAK:
+                return "EBREAK";
+            case MUL:
+                return "MUL";
+            case MULH:
+                return "MULH";
+            case MULSU:
+                return "MULSU";
+            case MULU:
+                return "MULU";
+            case DIV:
+                return "DIV";
+            case DIVU:
+                return "DIVU";
+            case REM:
+                return "REM";
+            case REMU:
+                return "REMU";
+            default:
+                break;
+            }
+        }
+
+        constexpr std::string_view getRegisterName(Register reg) {
+            switch (reg) {
+            case X0:
+                return "X0";
+            case X1:
+                return "X1";
+            case X2:
+                return "X2";
+            case X3:
+                return "X3";
+            case X4:
+                return "X4";
+            case X5:
+                return "X5";
+            case X6:
+                return "X6";
+            case X7:
+                return "X7";
+            case X8:
+                return "X8";
+            case X9:
+                return "X9";
+            case X10:
+                return "X10";
+            case X11:
+                return "X11";
+            case X12:
+                return "X12";
+            case X13:
+                return "X13";
+            case X14:
+                return "X14";
+            case X15:
+                return "X15";
+            case X16:
+                return "X16";
+            case X17:
+                return "X17";
+            case X18:
+                return "X18";
+            case X19:
+                return "X19";
+            case X20:
+                return "X20";
+            case X21:
+                return "X21";
+            case X22:
+                return "X22";
+            case X23:
+                return "X23";
+            case X24:
+                return "X24";
+            case X25:
+                return "X25";
+            case X26:
+                return "X26";
+            case X27:
+                return "X27";
+            case X28:
+                return "X28";
+            case X29:
+                return "X29";
+            case X30:
+                return "X30";
+            case X31:
+                return "X31";
+            default:
+                return "PC";
+            }
+        };
+
+        std::string instructionToString(DecodedInstruction instr) {
+            // Format differently based on the encoding type
+            switch (instr.opcode) {
+            case 0b0110011u:
+                // R Type
+                return std::format("{}, {}, {}, {}", getInstructionName(instr.instr),
+                                   static_cast<Register>(instr.rd), static_cast<Register>(instr.rs1),
+                                   static_cast<Register>(instr.rs1));
+
+            case 0b0010011u:
+            case 0b0000011u:
+            case 0b1100111u:
+            case 0b1110011u:
+                // I Type
+                return std::format("{}, {}, {}, {}", getInstructionName(instr.instr),
+                                   static_cast<Register>(instr.rd), static_cast<Register>(instr.rs1),
+                                   instr.imm);
+
+            case 0b0100011u:
+                // S Type
+                return std::format("{}, {}, {}, {}", getInstructionName(instr.instr),
+                                   static_cast<Register>(instr.rd), static_cast<Register>(instr.rs1),
+                                   instr.imm);
+
+            case 0b1100011u:
+                // B Type
+                return std::format("{}, {}, {}, {}", getInstructionName(instr.instr),
+                                   static_cast<Register>(instr.rd), static_cast<Register>(instr.rs1),
+                                   instr.imm);
+
+            case 0b1101111u:
+                // J Type
+                return std::format("{}, {}, {}", getInstructionName(instr.instr),
+                                   static_cast<Register>(instr.rd), instr.imm);
+            case 0b0110111u:
+            case 0b0010111u:
+                // U Type
+                return std::format("{}, {}, {}", getInstructionName(instr.instr),
+                                   static_cast<Register>(instr.rd), instr.imm);
+
+            default:
+                break;
+            }
         }
 
     } // namespace instr

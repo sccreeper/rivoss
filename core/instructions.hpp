@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 namespace rivoss {
 
@@ -124,6 +125,10 @@ namespace rivoss {
         };
 
         DecodedInstruction decodeInstruction(uint32_t instr);
+
+        constexpr std::string_view getInstructionName(Instruction instr);
+        constexpr std::string_view getRegisterName(Register reg);
+        std::string                instructionToString(DecodedInstruction instr);
 
     }; // namespace instr
 
