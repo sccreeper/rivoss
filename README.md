@@ -19,5 +19,5 @@ clang --target=riscv32-unknown-elf -march=rv32im -mabi=ilp32 -nostdlib -ffreesta
 
 Or alternatively with GCC:
 ```
-riscv64-unknown-elf-gcc -march=rv32i -mabi=ilp32 -nostdlib -nostartfiles -ffreestanding -T link.ld main.c -o main.elf
+riscv64-unknown-elf-gcc -march=rv32im -mabi=ilp32 -nostdlib -nostartfiles -ffreestanding -T link.ld main.c -o main.elf
 ```
