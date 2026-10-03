@@ -377,6 +377,7 @@ namespace rivoss {
                 break;
             }
             case 0b1110011u: {
+                // SYSTEM opcode - All I Type
                 // Environment Call & Environment Break
                 result.rd        = utils::extractBits(instr, 7, 5);
                 result.funct3    = utils::extractBits(instr, 12, 3);
@@ -384,18 +385,48 @@ namespace rivoss {
                 result.signedImm = static_cast<int32_t>(utils::extractBits(instr, 20, 12) << 20) >> 20;
                 result.imm       = static_cast<uint32_t>(result.signedImm);
 
-                if (result.imm == 0x0) {
-                    // TODO: ecall
-                    result.instr = Instruction::ECALL;
-                } else {
-                    // TODO: ebreak
-                    result.instr = Instruction::EBREAK;
-                }
+                if (result.funct3 != 0) {
+                    switch (result.funct3) {
+                    case 0b001u:
+                        // Atomic Read/Write CSR
+                        result.instr = Instruction::CSRRW;
+                    case 0b010u:
+                        // Atomic Read and Set Bits in CSR
+                        result.instr = Instruction::CSRRS;
+                    case 0b011u:
+                        // Atomic Read and Clear Bits in CSR
+                        result.instr = Instruction::CSRRC;
+                    case 0b101u:
+                        // Immediate CSRW
+                        result.instr = Instruction::CSRRWI;
+                    case 0b110u:
+                        // Immediate CSRRS
+                        result.instr = Instruction::CSRRSI;
+                    case 0b111:
+                        // Immediate CSRRC
+                        result.instr = Instruction::CSRRCI;
+                    default:
+                        goto invalid_instruction;
+                        break;
+                    }
 
+                    return result;
+                } else {
+                    if (result.imm == 0x0) {
+                        result.instr = Instruction::ECALL;
+                    } else if (result.imm == 0x1) {
+                        result.instr = Instruction::EBREAK;
+                    } else {
+                        goto invalid_instruction;
+                    }
+
+                    return result;
+                }
                 break;
             }
 
             default:
+            invalid_instruction:
                 // Handle an exception here
                 // See https://docs.riscv.org/reference/isa/v20260120/unpriv/intro.html#trap-defn
                 break;
@@ -500,6 +531,18 @@ namespace rivoss {
                 return "REM";
             case REMU:
                 return "REMU";
+            case CSRRW:
+                return "CSRRW";
+            case CSRRS:
+                return "CSRRS";
+            case CSRRC:
+                return "CSRRC";
+            case CSRRWI:
+                return "CSRRWI";
+            case CSRRSI:
+                return "CSRRSI";
+            case CSRRCI:
+                return "CSRRCI";
             default:
                 return "";
             }

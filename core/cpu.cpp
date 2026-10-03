@@ -4,6 +4,9 @@
 
 #include "instructions.hpp"
 
+// TODO: HINT instructions
+// TODO: Zicsr
+
 namespace rivoss {
     namespace cpu {
 
@@ -311,7 +314,53 @@ namespace rivoss {
                 this->registerFile[rd] = this->registerFile[rs1] % this->registerFile[rs2];
                 break;
             }
+            // https://git-chips.miet.ru/MPSU/APS/src/commit/6e80a6cb700bacf9f0140c65c83bd18660ae2c8e/Other/CSR.md
+            // https://docs.riscv.org/reference/isa/v20260120/unpriv/zicsr.html
+            // The additional X0 checks are included here for the sake of correctness, despite the fact that
+            // X0 gets reset every cycle anyway.
+            case instr::Instruction::CSRRW: {
+                if (rd != instr::Register::X0) {
+                    this->registerFile[rd] = this->csrs[imm];
+                }
+                this->csrs[imm] = this->registerFile[rs1];
+                break;
+            }
+            case instr::Instruction::CSRRS:
+            case instr::Instruction::CSRRC: {
+                this->registerFile[rd] = this->csrs[imm];
+                if (rs1 != instr::Register::X0) {
+                    if (decodedInstr.instr == instr::Instruction::CSRRS) {
+                        this->csrs[imm] |= this->registerFile[rs1];
+                    } else {
+                        this->csrs[imm] &= ~this->registerFile[rs1];
+                    }
+                }
+            }
+            case instr::Instruction::CSRRWI: {
+                uint32_t uimm04 = rs1 >> 1;
+                if (rd != instr::Register::X0) {
+                    this->registerFile[rd] = this->csrs[imm];
+                }
+                this->csrs[imm] = uimm04;
+                break;
+            }
+            case instr::Instruction::CSRRSI:
+            case instr::Instruction::CSRRCI: {
+                uint32_t uimm04        = rs1 >> 1;
+                this->registerFile[rd] = this->csrs[imm];
 
+                if (uimm04 != 0) {
+                    if (decodedInstr.instr == instr::Instruction::CSRRSI) {
+                        // CSRRSI
+                        this->csrs[imm] |= uimm04;
+                    } else {
+                        // CSRRCI
+                        this->csrs[imm] &= uimm04;
+                    }
+                }
+
+                break;
+            }
             default:
                 // Handle an exception here
                 // See https://docs.riscv.org/reference/isa/v20260120/unpriv/intro.html#trap-defn

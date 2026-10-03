@@ -72,7 +72,15 @@ namespace rivoss {
             DIV,
             DIVU,
             REM,
-            REMU
+            REMU,
+
+            // Zicsr Extension
+            CSRRW,
+            CSRRS,
+            CSRRC,
+            CSRRWI,
+            CSRRSI,
+            CSRRCI
 
         };
 

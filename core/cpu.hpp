@@ -16,6 +16,7 @@ namespace rivoss {
             std::array<uint32_t, 32>    registerFile;
             std::uint32_t               pc;
             std::array<uint8_t, 65'536> memory;
+            std::array<uint32_t, 4'096> csrs;
         };
 
     }; // namespace cpu
