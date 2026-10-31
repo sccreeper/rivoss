@@ -16,6 +16,9 @@ else()
     message(STATUS "include-what-you-use not found, skipping IWYU checks")
 endif()
 
+set(CXXOPTS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(CXXOPTS_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -24,6 +27,13 @@ FetchContent_Declare(
     GIT_TAG Release_3.12
 )
 FetchContent_MakeAvailable(elfio)
+
+FetchContent_Declare(
+    cxxopts
+    GIT_REPOSITORY https://github.com/jarro2783/cxxopts.git
+    GIT_TAG v3.3.1
+)
+FetchContent_MakeAvailable(cxxopts)
 
 add_subdirectory(core)
 add_subdirectory(app)
