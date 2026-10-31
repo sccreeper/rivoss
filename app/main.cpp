@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -6,7 +8,9 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
+#include "core/cpu.hpp"
 #include "core/elf.hpp"
 #include "core/instructions.hpp"
 
@@ -45,6 +49,37 @@ int main(int argc, char const *argv[]) {
 
     } else {
         throw std::invalid_argument("No .text section found!");
+    }
+
+    std::array<uint8_t, 1'048'576> memory;
+    uint32_t                       start = file.loadIntoMemory(memory, 0);
+
+    r::cpu::Cpu cpu = r::cpu::Cpu{0, memory};
+    cpu.pc          = start;
+
+    uint32_t counter = 0;
+
+    while (true) {
+        std::cout << "\033[2J\033[H" << std::flush;
+        std::cout << counter << std::endl;
+        std::cout << "Program counter: " << cpu.pc << std::endl;
+        std::cout << "Registers: ";
+
+        for (size_t i = 0; i < 32; i++) {
+            std::cout << r::instr::getRegisterName(static_cast<r::instr::Register>(i)) << "="
+                      << cpu.registerFile[i] << " ";
+        }
+
+        std::cout << std::endl;
+
+        std::cout << "Current instruction: "
+                  << r::instr::instructionToString(r::instr::decodeInstruction(cpu.getCurrentInstruction()))
+                  << std::endl;
+
+        std::cin.get();
+        counter++;
+
+        cpu.cycle();
     }
 
     return 0;

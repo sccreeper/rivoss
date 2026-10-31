@@ -1,6 +1,7 @@
 #include "cpu.hpp"
 
 #include <iostream>
+#include <span>
 
 #include "instructions.hpp"
 
@@ -10,15 +11,40 @@
 namespace rivoss {
     namespace cpu {
 
+        Cpu::Cpu(uint32_t hartId, std::span<uint8_t> memory) {
+
+            // Construct misa CSR as per https://docs.riscv.org/reference/isa/v20260120/priv/machine.html#misa
+            // Set MXL bit 30 to 1
+            this->csrs[Csr::MISA] |= 0x1 << 30;
+            // RV32 base ISA (I)
+            this->csrs[Csr::MISA] |= 0x1 << 8;
+            // Multiplication extension (M)
+            this->csrs[Csr::MISA] |= 0x1 << 12;
+
+            // mvendor id, is set to zero, this is a "non-commerical implementation"
+            // https://docs.riscv.org/reference/isa/v20260120/priv/machine.html#2-1-1-2-machine-vendor-id-mvendorid-register
+            this->csrs[Csr::MVENDORID] = 0;
+
+            // marchid, no ID allocated by RISC-V, so for now, returns 0. mimpid also returns 0.
+            this->csrs[Csr::MARCHID] = 0;
+            this->csrs[Csr::MIMPID]  = 0;
+
+            this->csrs[Csr::MHARTID] = hartId;
+
+            // For now returns zero
+            this->csrs[Csr::MCONFIGPTR] = 0;
+
+            this->memory = memory;
+        }
+
         void Cpu::cycle() {
             this->registerFile[instr::X0] = 0;
             bool shouldIncrementPc        = true;
 
-            uint32_t currentInstruction = this->memory[this->pc] | (this->memory[this->pc + 1] << 8) |
-                                          (this->memory[this->pc + 2] << 16) |
-                                          (this->memory[this->pc + 3] << 24);
+            uint32_t currentInstruction = this->getCurrentInstruction();
 
             instr::DecodedInstruction decodedInstr = instr::decodeInstruction(currentInstruction);
+            std::cout << instr::instructionToString(decodedInstr) << std::endl;
 
             uint32_t rd        = decodedInstr.rd;
             uint32_t rs1       = decodedInstr.rs1;
@@ -370,6 +396,11 @@ namespace rivoss {
             if (shouldIncrementPc) {
                 this->pc += 4;
             }
+        }
+
+        uint32_t Cpu::getCurrentInstruction() {
+            return this->memory[this->pc] | (this->memory[this->pc + 1] << 8) |
+                   (this->memory[this->pc + 2] << 16) | (this->memory[this->pc + 3] << 24);
         }
 
     } // namespace cpu

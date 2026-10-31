@@ -14,10 +14,10 @@
 In order to compile a single program targeting the simulator, use the following command:
 
 ```
-clang --target=riscv32-unknown-elf -march=rv32im -mabi=ilp32 -nostdlib -ffreestanding -fuse-ld=lld -T link.ld -o out.elf start.S test.c
+clang --target=riscv32-unknown-elf -march=rv32im_zicsr -mabi=ilp32 -nostdlib -ffreestanding -fuse-ld=lld -T link.ld -o out.elf start.S test.c
 ```
 
 Or alternatively with GCC:
 ```
-riscv64-unknown-elf-gcc -march=rv32im -mabi=ilp32 -nostdlib -nostartfiles -ffreestanding -T link.ld main.c -o main.elf
+riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -nostdlib -nostartfiles -ffreestanding -T link.ld main.c -o main.elf
 ```
